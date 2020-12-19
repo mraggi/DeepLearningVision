@@ -5,7 +5,7 @@ import torch.nn.functional as F
 from pathlib import Path
 from Layers import *
 
-def Pequeña(c_out, filters=[32, 64, 128, 256, 384, 1024, 640]):
+def Chamaco(c_out, filters=[32, 64, 128, 256, 384, 1024, 640]):
     f0, f1, f2, f3, f4, f5, f6 = filters
     initial = nn.Sequential(Normalize(),
                             conv2d(3, f0, k=4, s=2, init='avg'),
@@ -47,12 +47,12 @@ def Pequeña(c_out, filters=[32, 64, 128, 256, 384, 1024, 640]):
     
     return nn.Sequential(initial, blockA, blockB, blockC, classifier) 
 
-def pequeña_splitter(m):
+def chamaco_splitter(m):
     return [list(p.parameters()) for p in m]
 
-def load_pequeña(cats, file=None, **kwargs):
+def load_chamaco(cats, file=None, **kwargs):
     if file is None:
-        model = Pequeña(cats,**kwargs)
+        model = Chamaco(cats,**kwargs)
     else:
         state_dict = torch.load(file)
         if 'model' in state_dict.keys():
@@ -60,7 +60,7 @@ def load_pequeña(cats, file=None, **kwargs):
         
         key = list(state_dict.keys())[-1]
         out = state_dict[key].shape[0]
-        model = Pequeña(out, **kwargs)
+        model = Chamaco(out, **kwargs)
         model.load_state_dict(state_dict)
         if out != cats:
             print("# categories change, so replacing last layer")
@@ -68,5 +68,5 @@ def load_pequeña(cats, file=None, **kwargs):
             model[-1][-1] = nn.Linear(last_nf, cats)
         else:
             print("# categories stayed the same.")
-    print(f"Correctly loaded model PEQUEÑA with {num_params(model)/10**6:.3f}M parameters")
+    print(f"Correctly loaded model Chamaco with {num_params(model)/10**6:.3f}M parameters")
     return model
